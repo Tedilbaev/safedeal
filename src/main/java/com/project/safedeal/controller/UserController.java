@@ -36,7 +36,13 @@ public class UserController {
     public ResponseEntity<List<Ad>> getUserAds() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         User user = userService.getUserByEmail(email);
-        List<Ad> ads = adRepository.findByUser(user);
+        List<Ad> ads = adRepository.findByUserOrderByCreatedAtDesc(user);
+        return ResponseEntity.ok(ads);
+    }
+
+    @GetMapping("/all-ads")
+    public ResponseEntity<List<Ad>> getAllAds() {
+        List<Ad> ads = adRepository.findAllByOrderByCreatedAtDesc();
         return ResponseEntity.ok(ads);
     }
 

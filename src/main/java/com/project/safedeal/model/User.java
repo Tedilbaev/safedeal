@@ -37,5 +37,10 @@ public class User {
     @Column(precision = 12, scale = 2)
     private BigDecimal balance;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
+    private String location;
+
 
 }
