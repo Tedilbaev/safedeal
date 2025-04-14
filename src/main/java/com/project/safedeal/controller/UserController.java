@@ -32,70 +32,54 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/my-ads")
-    public ResponseEntity<List<Ad>> getUserAds() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        User user = userService.getUserByEmail(email);
-        List<Ad> ads = adRepository.findByUserOrderByCreatedAtDesc(user);
-        return ResponseEntity.ok(ads);
-    }
-
-    @GetMapping("/all-ads")
-    public ResponseEntity<List<Ad>> getAllAds() {
-        List<Ad> ads = adRepository.findAllByOrderByCreatedAtDesc();
-        return ResponseEntity.ok(ads);
-    }
-
-    @PostMapping("/create-ad")
-    public ResponseEntity<?> createAd(
-            @RequestParam("title") String title,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam("price") String price,
-            @RequestParam(value = "category", required = false) String category,
+    @PatchMapping("/update")
+    public ResponseEntity<?> updateProfile(
+            Authentication authentication,
+            @RequestParam(value = "username", required = false) String username,
+            @RequestParam(value = "email", required = false) String email,
             @RequestParam(value = "location", required = false) String location,
-            @RequestParam(value = "photo", required = false) MultipartFile photo,
-            Authentication authentication) {
+            @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "avatar", required = false) MultipartFile avatar) {
         try {
-            if (title == null || title.trim().isEmpty() || price == null || price.trim().isEmpty()) {
-                return ResponseEntity.badRequest().body("Title and price are required");
+            String avatarUrl = null;
+            if (avatar != null && !avatar.isEmpty()) {
+                avatarUrl = savePhoto(avatar);
             }
 
-            User user = userService.getUserFromAuthentication(authentication);
+            User updatedUser = userService.updateUserProfile(
+                    authentication, username, email, location, description, phone, avatarUrl
+            );
+            return ResponseEntity.ok(updatedUser);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (IOException e) {
+            return ResponseEntity.status(500).body("Failed to upload avatar: " + e.getMessage());
+        }
+    }
 
-            Ad ad = new Ad();
-            ad.setUser(user);
-            ad.setTitle(title);
-            ad.setDescription(description);
-            try {
-                ad.setPrice(new BigDecimal(price));
-            } catch (NumberFormatException e) {
-                return ResponseEntity.badRequest().body("Invalid price format");
+    @PatchMapping("/password")
+    public ResponseEntity<?> changePassword(
+            Authentication authentication,
+            @RequestParam("oldPassword") String oldPassword,
+            @RequestParam("newPassword") String newPassword,
+            @RequestParam("confirmPassword") String confirmPassword) {
+        try {
+            if (!newPassword.equals(confirmPassword)) {
+                return ResponseEntity.badRequest().body("Passwords do not match");
             }
-            ad.setCategory(category);
-            ad.setLocation(location);
-            ad.setStatus("ACTIVE");
-            ad.setCreatedAt(LocalDateTime.now());
-            ad.setUpdatedAt(LocalDateTime.now());
-
-            if (photo != null && !photo.isEmpty()) {
-                String photoUrl = savePhoto(photo);
-                ad.setPhoto(photoUrl);
-            }
-
-            Ad savedAd = adRepository.save(ad);
-            return ResponseEntity.ok(savedAd);
-        } catch (Exception e) {
-            e.printStackTrace(); // Логируем ошибку для диагностики
-            return ResponseEntity.status(500).body("Server error: " + e.getMessage());
+            userService.changePassword(authentication, oldPassword, newPassword);
+            return ResponseEntity.ok("Password changed successfully");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     private String savePhoto(MultipartFile photo) throws IOException {
-        // Путь к папке userData (на одном уровне с корнем проекта)
+
         String uploadDir = new File("../userData").getAbsolutePath() + "/";
         File directory = new File(uploadDir);
 
-        // Проверяем и создаём директорию, если её нет
         if (!directory.exists()) {
             boolean created = directory.mkdirs();
             if (!created) {
@@ -106,19 +90,15 @@ public class UserController {
             System.out.println("Директория уже существует: " + uploadDir);
         }
 
-        // Генерируем уникальное имя файла
         String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();
         File destination = new File(uploadDir + fileName);
 
-        // Сохраняем файл
         try {
             photo.transferTo(destination);
             System.out.println("Файл сохранен: " + destination.getAbsolutePath());
         } catch (IOException e) {
             throw new IOException("Ошибка сохранения файла: " + e.getMessage());
         }
-
-        // Возвращаем относительный путь для использования в фронтенде
         return "/userData/" + fileName;
     }
 }
