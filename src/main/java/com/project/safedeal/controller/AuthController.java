@@ -12,6 +12,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -47,6 +49,7 @@ public class AuthController {
         user.setPassword(request.getPassword()); // Пароль будет закодирован в UserService
         user.setUsername(request.getUsername());
         user.setRole("USER"); // Укажи роль по умолчанию
+        user.setBalance(BigDecimal.ZERO);
         userService.registerUser(user);
         return ResponseEntity.ok("Регистрация успешна");
     }

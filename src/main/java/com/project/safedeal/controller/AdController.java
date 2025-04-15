@@ -7,6 +7,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
 
 
 import java.util.List;
@@ -21,16 +23,42 @@ public class AdController {
     @GetMapping("/all")
     public ResponseEntity<List<Ad>> getAllAds(
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
-            @RequestParam(required = false, defaultValue = "desc") String order) {
-        return ResponseEntity.ok(adService.getAllAds(sortBy, order));
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false) String title,
+            @RequestParam(required = false) String category) {
+        return ResponseEntity.ok(adService.getAllAds(sortBy, order, title, category));
     }
 
     @GetMapping("/my")
     public ResponseEntity<List<Ad>> getMyAds(
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
-            @RequestParam(required = false, defaultValue = "desc") String order) {
-        return ResponseEntity.ok(adService.getUserAds(authentication, sortBy, order));
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false) String title) {
+        return ResponseEntity.ok(adService.getUserAds(authentication, sortBy, order, title));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<Ad> getAdById(@PathVariable Long id) {
+        Ad ad = adService.getAdById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
+        return ResponseEntity.ok(ad);
+    }
+
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<?> deleteAd(
+            @PathVariable Long id,
+            Authentication authentication) {
+        try {
+            adService.deleteAd(id, authentication);
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (ResponseStatusException e) {
+            return ResponseEntity.status(e.getStatusCode()).body(e.getReason());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error: " + e.getMessage());
+        }
     }
 
     @PostMapping("/create")

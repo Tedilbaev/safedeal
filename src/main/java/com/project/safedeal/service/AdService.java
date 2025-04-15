@@ -5,15 +5,18 @@ import com.project.safedeal.model.User;
 import com.project.safedeal.repository.AdRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,15 +25,27 @@ public class AdService {
     private final AdRepository adRepository;
     private final UserService userService;
 
-    public List<Ad> getAllAds(String sortBy, String order) {
+    public List<Ad> getAllAds(String sortBy, String order, String title, String category) {
         Sort sort = buildSort(sortBy, order);
+        if (title != null && !title.trim().isEmpty()) {
+            return adRepository.findByTitleContainingIgnoreCase(title, sort);
+        } else if (category != null && !category.trim().isEmpty()) {
+            return adRepository.findByCategoryContainingIgnoreCase(category, sort);
+        }
         return adRepository.findAll(sort);
     }
 
-    public List<Ad> getUserAds(Authentication authentication, String sortBy, String order) {
+    public List<Ad> getUserAds(Authentication authentication, String sortBy, String order, String title) {
         User user = userService.getUserFromAuthentication(authentication);
         Sort sort = buildSort(sortBy, order);
+        if (title != null && !title.trim().isEmpty()) {
+            return adRepository.findByUserAndTitleContainingIgnoreCase(user, title, sort);
+        }
         return adRepository.findByUser(user, sort);
+    }
+
+    public Optional<Ad> getAdById(Long id) {
+        return adRepository.findById(id);
     }
 
     private Sort buildSort(String sortBy, String order) {
@@ -44,6 +59,16 @@ public class AdService {
 
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
         return Sort.by(direction, field);
+    }
+
+    public void deleteAd(Long id, Authentication authentication) {
+        User user = userService.getUserFromAuthentication(authentication);
+        Ad ad = adRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
+        if (!ad.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Вы не можете удалить это объявление");
+        }
+        adRepository.delete(ad);
     }
 
     public Ad createAd(Authentication authentication, String title, String description, String price,
