@@ -72,6 +72,44 @@ public class AdService {
         adRepository.delete(ad);
     }
 
+    public Ad updateAd(Long id, Authentication authentication, String title, String description,
+                       String price, String category, String location, MultipartFile photo) throws IOException {
+        User user = userService.getUserFromAuthentication(authentication);
+        Ad ad = adRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
+
+        if (!ad.getUser().getId().equals(user.getId())) {
+            throw new IllegalArgumentException("Вы не можете редактировать это объявление");
+        }
+
+        if (title != null && !title.trim().isEmpty()) {
+            ad.setTitle(title);
+        }
+        if (description != null) {
+            ad.setDescription(description);
+        }
+        if (price != null && !price.trim().isEmpty()) {
+            try {
+                ad.setPrice(new BigDecimal(price));
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("Invalid price format");
+            }
+        }
+        if (category != null) {
+            ad.setCategory(category);
+        }
+        if (location != null) {
+            ad.setLocation(location);
+        }
+        if (photo != null && !photo.isEmpty()) {
+            String photoUrl = savePhoto(photo);
+            ad.setPhoto(photoUrl);
+        }
+
+        ad.setUpdatedAt(LocalDateTime.now());
+        return adRepository.save(ad);
+    }
+
     public Ad createAd(Authentication authentication, String title, String description, String price,
                        String category, String location, MultipartFile photo) throws IOException {
         if (title == null || title.trim().isEmpty() || price == null || price.trim().isEmpty()) {
