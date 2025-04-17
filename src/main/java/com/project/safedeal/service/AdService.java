@@ -3,6 +3,7 @@ package com.project.safedeal.service;
 import com.project.safedeal.model.Ad;
 import com.project.safedeal.model.User;
 import com.project.safedeal.repository.AdRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -113,5 +114,36 @@ public class AdService {
         photo.transferTo(destination);
         return "/userData/" + fileName;
     }
+
+//    @Transactional
+//    public Ad updateAd(Authentication authentication, String title, String description,
+//                                  String price, String category, String location, MultipartFile photo) {
+//        User user = userService.getUserFromAuthentication(authentication);
+//        List<Ad> ads = adRepository.findById(user.getId());
+//        if (title == null || title.trim().isEmpty() || price == null || price.trim().isEmpty()) {
+//            throw new IllegalArgumentException("Title and price are required");
+//        }
+//        Ad ad = new Ad();
+//        ad.setUser(user);
+//        ad.setTitle(title);
+//        ad.setDescription(description);
+//        try {
+//            ad.setPrice(new BigDecimal(price));
+//        } catch (NumberFormatException e) {
+//            throw new IllegalArgumentException("Invalid price format");
+//        }
+//        ad.setCategory(category);
+//        ad.setLocation(location);
+//        ad.setStatus("ACTIVE");
+//        ad.setCreatedAt(LocalDateTime.now());
+//        ad.setUpdatedAt(LocalDateTime.now());
+//
+//        if (photo != null && !photo.isEmpty()) {
+//            String photoUrl = savePhoto(photo);
+//            ad.setPhoto(photoUrl);
+//        }
+//
+//        return adRepository.save(ad);
+//    }
 
 }
