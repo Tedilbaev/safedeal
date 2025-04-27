@@ -4,9 +4,12 @@ import com.project.safedeal.model.User;
 import com.project.safedeal.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -41,6 +44,11 @@ public class UserService {
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+    }
+
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     public User getUserFromAuthentication(Authentication authentication) {
@@ -93,5 +101,27 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
+    }
+
+    public List<User> getAllUsers(String sortBy, String order, String username, String email) {
+        Sort sort = buildSort(sortBy, order);
+        if (username != null && !username.trim().isEmpty()) {
+            return userRepository.findByUsernameContainingIgnoreCase(username, sort);
+        } else if (email != null && !email.trim().isEmpty()) {
+            return userRepository.findByEmailContainingIgnoreCase(email, sort);
+        }
+        return userRepository.findAll(sort);
+    }
+
+    private Sort buildSort(String sortBy, String order) {
+        String field = switch (sortBy != null ? sortBy.toLowerCase() : "id") {
+            case "username" -> "username";
+            case "email" -> "email";
+            case "createdat" -> "createdAt";
+            default -> "id";
+        };
+
+        Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return Sort.by(direction, field);
     }
 }

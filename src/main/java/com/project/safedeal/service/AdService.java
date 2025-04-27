@@ -45,8 +45,9 @@ public class AdService {
         return adRepository.findByUser(user, sort);
     }
 
-    public Optional<Ad> getAdById(Long id) {
-        return adRepository.findById(id);
+    public Ad getAdById(Long id) {
+        return adRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
     }
 
     private Sort buildSort(String sortBy, String order) {

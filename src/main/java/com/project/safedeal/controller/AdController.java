@@ -40,8 +40,7 @@ public class AdController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Ad> getAdById(@PathVariable Long id) {
-        Ad ad = adService.getAdById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
+        Ad ad = adService.getAdById(id);
         return ResponseEntity.ok(ad);
     }
 

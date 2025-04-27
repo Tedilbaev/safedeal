@@ -32,6 +32,16 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
+    @GetMapping("/all")
+    public ResponseEntity<List<User>> getAllUsers(
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        List<User> users = userService.getAllUsers(sortBy, order, username, email);
+        return ResponseEntity.ok(users);
+    }
+
     @PatchMapping("/update")
     public ResponseEntity<?> updateProfile(
             Authentication authentication,
