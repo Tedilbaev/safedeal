@@ -35,4 +35,13 @@ public class OrderController {
             return ResponseEntity.status(500).body("Server error: " + e.getMessage());
         }
     }
+
+    @GetMapping("/my")
+    public ResponseEntity<List<Order>> getMyOrders(
+            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false) String title) {
+        return ResponseEntity.ok(orderService.getUserOrders(authentication, sortBy, order, title));
+    }
 }

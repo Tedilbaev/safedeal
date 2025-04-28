@@ -42,6 +42,16 @@ public class UserController {
         return ResponseEntity.ok(users);
     }
 
+    @GetMapping("/moder")
+    public ResponseEntity<List<User>> getAllModer(
+            @RequestParam(required = false, defaultValue = "id") String sortBy,
+            @RequestParam(required = false, defaultValue = "asc") String order,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email) {
+        List<User> moder = userService.getAllModer(sortBy, order, username, email);
+        return ResponseEntity.ok(moder);
+    }
+
     @PatchMapping("/update")
     public ResponseEntity<?> updateProfile(
             Authentication authentication,

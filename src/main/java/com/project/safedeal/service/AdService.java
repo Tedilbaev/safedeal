@@ -67,7 +67,7 @@ public class AdService {
         User user = userService.getUserFromAuthentication(authentication);
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
-        if (!user.getRole().equals("ADMIN") && !ad.getUser().getId().equals(user.getId())) {
+        if (user.getRole().equals("USER") && !ad.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Вы не можете редактировать это объявление");
         }
         adRepository.delete(ad);
@@ -79,7 +79,7 @@ public class AdService {
         Ad ad = adRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Объявление не найдено"));
 
-        if (!user.getRole().equals("ADMIN") && !ad.getUser().getId().equals(user.getId())) {
+        if (user.getRole().equals("USER") && !ad.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Вы не можете редактировать это объявление");
         }
 

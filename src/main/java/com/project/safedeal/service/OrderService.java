@@ -8,6 +8,7 @@ import com.project.safedeal.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -42,5 +43,37 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public List<Order> getUserOrders(Authentication authentication, String sortBy, String order, String title) {
+        User user = userService.getUserFromAuthentication(authentication);
+        Sort sort = buildSort(sortBy, order);
+        if (title != null && !title.trim().isEmpty()) {
+            return orderRepository.findByClientAndAdTitleContainingIgnoreCase(user, title, sort);
+        }
+        return orderRepository.findByClient(user, sort);
+    }
+
+    private Sort buildSort(String sortBy, String order) {
+        // Определяем направление сортировки
+        Sort.Direction direction =
+                "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+        // Обрабатываем поля Order и связанных сущностей (Ad)
+        if (sortBy == null) {
+            sortBy = "createdAt"; // Сортировка по умолчанию
+        }
+
+        return switch (sortBy.toLowerCase()) {
+            // Поля из Order
+            case "id", "status", "createdat", "endat" -> Sort.by(direction, sortBy);
+
+            // Поля из Ad (сортировка по связанной сущности)
+            case "title" -> JpaSort.unsafe(direction, "ad.title"); // Сортировка по ad.title
+            case "price" -> JpaSort.unsafe(direction, "ad.price"); // Сортировка по ad.price
+            case "category" -> JpaSort.unsafe(direction, "ad.category"); // Сортировка по ad.category
+
+            // Если поле не найдено — сортируем по дате создания (createdAt)
+            default -> Sort.by(direction, "createdAt");
+        };
+    }
 
 }

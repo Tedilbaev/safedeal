@@ -113,10 +113,22 @@ public class UserService {
         return userRepository.findAll(sort);
     }
 
+    public List<User> getAllModer(String sortBy, String order, String username, String email) {
+        Sort sort = buildSort(sortBy, order);
+        String role = "MODER";
+        if (username != null && !username.trim().isEmpty()) {
+            return userRepository.findByRoleAndUsernameContainingIgnoreCase(role, username, sort);
+        } else if (email != null && !email.trim().isEmpty()) {
+            return userRepository.findByRoleAndEmailContainingIgnoreCase(role, email, sort);
+        }
+        return userRepository.findByRole(role, sort);
+    }
+
     private Sort buildSort(String sortBy, String order) {
         String field = switch (sortBy != null ? sortBy.toLowerCase() : "id") {
             case "username" -> "username";
             case "email" -> "email";
+            case "role" -> "role";
             case "createdat" -> "createdAt";
             default -> "id";
         };
