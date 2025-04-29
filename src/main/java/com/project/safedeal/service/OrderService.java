@@ -52,6 +52,14 @@ public class OrderService {
         return orderRepository.findByClient(user, sort);
     }
 
+    public List<Order> getAllOrders(Authentication authentication, String sortBy, String order, String title) {
+        Sort sort = buildSort(sortBy, order);
+        if (title != null && !title.trim().isEmpty()) {
+            return orderRepository.findByAdTitleContainingIgnoreCase(title, sort);
+        }
+        return orderRepository.findAll(sort);
+    }
+
     private Sort buildSort(String sortBy, String order) {
         // Определяем направление сортировки
         Sort.Direction direction =

@@ -44,4 +44,13 @@ public class OrderController {
             @RequestParam(required = false) String title) {
         return ResponseEntity.ok(orderService.getUserOrders(authentication, sortBy, order, title));
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Order>> getAllOrders(
+            Authentication authentication,
+            @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
+            @RequestParam(required = false, defaultValue = "desc") String order,
+            @RequestParam(required = false) String title) {
+        return ResponseEntity.ok(orderService.getAllOrders(authentication, sortBy, order, title));
+    }
 }

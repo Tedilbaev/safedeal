@@ -13,4 +13,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByAdId(Long AdId);
     List<Order> findByClient(User client, Sort sort);
     List<Order> findByClientAndAdTitleContainingIgnoreCase(User client, String title, Sort sort);
+    List<Order> findByAdTitleContainingIgnoreCase(String title, Sort sort);
 }
