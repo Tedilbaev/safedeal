@@ -1,8 +1,12 @@
 package com.project.safedeal.service;
 
 import com.project.safedeal.model.Ad;
+import com.project.safedeal.model.Photo;
 import com.project.safedeal.model.User;
+import com.project.safedeal.model.Order;
 import com.project.safedeal.repository.AdRepository;
+import com.project.safedeal.repository.OrderRepository;
+import com.project.safedeal.repository.PhotoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
@@ -25,6 +29,8 @@ public class AdService {
 
     private final AdRepository adRepository;
     private final UserService userService;
+    private final OrderRepository orderRepository;
+    private final PhotoRepository photoRepository;
 
     public List<Ad> getAllAds(String sortBy, String order, String title, String category) {
         Sort sort = buildSort(sortBy, order);
@@ -70,6 +76,12 @@ public class AdService {
         if (user.getRole().equals("USER") && !ad.getUser().getId().equals(user.getId())) {
             throw new IllegalArgumentException("Вы не можете редактировать это объявление");
         }
+
+        List<Order> orders = orderRepository.findByAdId(id);
+        orderRepository.deleteAll(orders);
+        List<Photo> photos = photoRepository.findByAdId(id);
+        photoRepository.deleteAll(photos);
+
         adRepository.delete(ad);
     }
 
@@ -154,35 +166,6 @@ public class AdService {
         return "/userData/" + fileName;
     }
 
-//    @Transactional
-//    public Ad updateAd(Authentication authentication, String title, String description,
-//                                  String price, String category, String location, MultipartFile photo) {
-//        User user = userService.getUserFromAuthentication(authentication);
-//        List<Ad> ads = adRepository.findById(user.getId());
-//        if (title == null || title.trim().isEmpty() || price == null || price.trim().isEmpty()) {
-//            throw new IllegalArgumentException("Title and price are required");
-//        }
-//        Ad ad = new Ad();
-//        ad.setUser(user);
-//        ad.setTitle(title);
-//        ad.setDescription(description);
-//        try {
-//            ad.setPrice(new BigDecimal(price));
-//        } catch (NumberFormatException e) {
-//            throw new IllegalArgumentException("Invalid price format");
-//        }
-//        ad.setCategory(category);
-//        ad.setLocation(location);
-//        ad.setStatus("ACTIVE");
-//        ad.setCreatedAt(LocalDateTime.now());
-//        ad.setUpdatedAt(LocalDateTime.now());
-//
-//        if (photo != null && !photo.isEmpty()) {
-//            String photoUrl = savePhoto(photo);
-//            ad.setPhoto(photoUrl);
-//        }
-//
-//        return adRepository.save(ad);
-//    }
+
 
 }
