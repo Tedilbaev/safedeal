@@ -31,9 +31,10 @@ public class BalanceTransactionController {
     // Пополнение баланса
     @PostMapping("/replenish")
     public ResponseEntity<BalanceTransaction> replenishBalance(
-            @RequestParam Long userId,
-            @RequestParam BigDecimal amount) {
-        BalanceTransaction transaction = balanceTransactionService.replenishment(userId, amount);
+            Authentication authentication,
+            @RequestParam("userId") Long userId,
+            @RequestParam("amount") String amount) {
+        BalanceTransaction transaction = balanceTransactionService.replenishment(authentication, userId, amount);
         return ResponseEntity.ok(transaction);
     }
 

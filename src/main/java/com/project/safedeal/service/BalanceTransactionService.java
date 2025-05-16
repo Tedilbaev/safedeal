@@ -59,12 +59,12 @@ public class BalanceTransactionService {
     }
 
     @Transactional
-    public BalanceTransaction replenishment(Long userId, BigDecimal amount) {
+    public BalanceTransaction replenishment(Authentication authentication, Long userId, String amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        user.setBalance(user.getBalance().add(amount));
+        user.setBalance(user.getBalance().add(new BigDecimal(amount)));
         BalanceTransaction transaction = new BalanceTransaction();
         transaction.setUser(user);
-        transaction.setAmount(amount);
+        transaction.setAmount(new BigDecimal(amount));
         transaction.setType("Пополнение");
         balanceTransactionRepository.save(transaction);
         userRepository.save(user);
