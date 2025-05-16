@@ -52,7 +52,7 @@ public class CategoryService {
 
     public Category createCategory(Authentication authentication, String name) throws IOException {
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title are required");
+            throw new IllegalArgumentException("Название обязательно");
         }
         Category category = new Category();
         category.setName(name);

@@ -32,10 +32,10 @@ public class UserService {
 
     public User authenticate(String email, String password) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new RuntimeException("Пользователь с таким email не найден: " + email));
 
         if (!passwordEncoder.matches(password, user.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new RuntimeException("Неверный пароль");
         }
 
         return user;
@@ -43,18 +43,18 @@ public class UserService {
 
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                .orElseThrow(() -> new RuntimeException("Пользователь с таким email не найден: " + email));
     }
 
     public User getUserById(Long id) {
         return userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Пользователь с таким id не найден: " + id));
     }
 
     public User getUserFromAuthentication(Authentication authentication) {
         String email = authentication.getName();
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
     }
 
     @Transactional
@@ -63,10 +63,10 @@ public class UserService {
         User user = getUserFromAuthentication(authentication);
 
         if (username != null && !username.equals(user.getUsername()) && usernameExists(username)) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new IllegalArgumentException("Логин уже существует");
         }
         if (email != null && !email.equals(user.getEmail()) && emailExists(email)) {
-            throw new IllegalArgumentException("Email already exists");
+            throw new IllegalArgumentException("Электронная почта уже существует");
         }
 
         if (username != null && !username.trim().isEmpty()) {
@@ -96,7 +96,7 @@ public class UserService {
         User user = getUserFromAuthentication(authentication);
 
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
-            throw new IllegalArgumentException("Invalid old password");
+            throw new IllegalArgumentException("Новый пароль совпадает со старым");
         }
 
         user.setPassword(passwordEncoder.encode(newPassword));

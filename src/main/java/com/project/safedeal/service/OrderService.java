@@ -61,25 +61,20 @@ public class OrderService {
     }
 
     private Sort buildSort(String sortBy, String order) {
-        // Определяем направление сортировки
         Sort.Direction direction =
                 "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;
-
-        // Обрабатываем поля Order и связанных сущностей (Ad)
         if (sortBy == null) {
-            sortBy = "createdAt"; // Сортировка по умолчанию
+            sortBy = "createdAt";
         }
 
         return switch (sortBy.toLowerCase()) {
-            // Поля из Order
+
             case "id", "status", "createdat", "endat" -> Sort.by(direction, sortBy);
 
-            // Поля из Ad (сортировка по связанной сущности)
-            case "title" -> JpaSort.unsafe(direction, "ad.title"); // Сортировка по ad.title
-            case "price" -> JpaSort.unsafe(direction, "ad.price"); // Сортировка по ad.price
-            case "category" -> JpaSort.unsafe(direction, "ad.category"); // Сортировка по ad.category
+            case "title" -> JpaSort.unsafe(direction, "ad.title");
+            case "price" -> JpaSort.unsafe(direction, "ad.price");
+            case "category" -> JpaSort.unsafe(direction, "ad.category");
 
-            // Если поле не найдено — сортируем по дате создания (createdAt)
             default -> Sort.by(direction, "createdAt");
         };
     }

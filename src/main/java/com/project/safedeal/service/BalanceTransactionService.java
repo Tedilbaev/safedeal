@@ -46,12 +46,12 @@ public class BalanceTransactionService {
     }
 
     private Sort buildSort(String sortBy, String order) {
-        // Допустимые поля для сортировки
+
         String field = switch (sortBy != null ? sortBy.toLowerCase() : "createdAt") {
             case "amount" -> "amount";
             case "type" -> "type";
             case "createdAt" -> "createdAt";
-            default -> "createdAt"; // По умолчанию
+            default -> "createdAt";
         };
 
         Sort.Direction direction = "desc".equalsIgnoreCase(order) ? Sort.Direction.DESC : Sort.Direction.ASC;

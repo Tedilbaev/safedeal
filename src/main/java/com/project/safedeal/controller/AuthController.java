@@ -39,10 +39,10 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
         if (userService.emailExists(request.getEmail())) {
-            return ResponseEntity.badRequest().body("Email already exists");
+            return ResponseEntity.badRequest().body("Электронная почта уже существует");
         }
         if (userService.usernameExists(request.getUsername())) {
-            return ResponseEntity.badRequest().body("Username already exists");
+            return ResponseEntity.badRequest().body("Логин уже существует");
         }
         User user = new User();
         user.setEmail(request.getEmail());

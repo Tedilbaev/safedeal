@@ -54,7 +54,7 @@ public class PhotoService {
         String uploadDir = new File("../userData").getAbsolutePath() + "/";
         File directory = new File(uploadDir);
         if (!directory.exists() && !directory.mkdirs()) {
-            throw new IOException("Failed to create directory: " + uploadDir);
+            throw new IOException("Ошибка при создании директории: " + uploadDir);
         }
 
         String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();

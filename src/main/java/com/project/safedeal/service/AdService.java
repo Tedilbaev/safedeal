@@ -53,7 +53,7 @@ public class AdService {
 
     public Ad getAdById(Long id) {
         return adRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new RuntimeException("Пользователь с таким id не найден: " + id));
     }
 
     private Sort buildSort(String sortBy, String order) {
@@ -105,7 +105,7 @@ public class AdService {
             try {
                 ad.setPrice(new BigDecimal(price));
             } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("Invalid price format");
+                throw new IllegalArgumentException("Неверный формат цены");
             }
         }
         if (category != null) {
@@ -126,7 +126,7 @@ public class AdService {
     public Ad createAd(Authentication authentication, String title, String description, String price,
                        String category, String location, MultipartFile photo) throws IOException {
         if (title == null || title.trim().isEmpty() || price == null || price.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title and price are required");
+            throw new IllegalArgumentException("Название и цена обязательны");
         }
 
         User user = userService.getUserFromAuthentication(authentication);
@@ -137,7 +137,7 @@ public class AdService {
         try {
             ad.setPrice(new BigDecimal(price));
         } catch (NumberFormatException e) {
-            throw new IllegalArgumentException("Invalid price format");
+            throw new IllegalArgumentException("Неверный формат цены");
         }
         ad.setCategory(category);
         ad.setLocation(location);
@@ -157,7 +157,7 @@ public class AdService {
         String uploadDir = new File("../userData").getAbsolutePath() + "/";
         File directory = new File(uploadDir);
         if (!directory.exists() && !directory.mkdirs()) {
-            throw new IOException("Failed to create directory: " + uploadDir);
+            throw new IOException("FОшибка при создании директории: " + uploadDir);
         }
 
         String fileName = System.currentTimeMillis() + "_" + photo.getOriginalFilename();

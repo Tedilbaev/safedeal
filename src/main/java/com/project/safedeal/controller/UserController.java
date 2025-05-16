@@ -74,7 +74,7 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         } catch (IOException e) {
-            return ResponseEntity.status(500).body("Failed to upload avatar: " + e.getMessage());
+            return ResponseEntity.status(500).body("Не удалось загрузить аватар: " + e.getMessage());
         }
     }
 
@@ -86,10 +86,10 @@ public class UserController {
             @RequestParam("confirmPassword") String confirmPassword) {
         try {
             if (!newPassword.equals(confirmPassword)) {
-                return ResponseEntity.badRequest().body("Passwords do not match");
+                return ResponseEntity.badRequest().body("Пароли не совпадают");
             }
             userService.changePassword(authentication, oldPassword, newPassword);
-            return ResponseEntity.ok("Password changed successfully");
+            return ResponseEntity.ok("Пароль успешно изменен");
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
