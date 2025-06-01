@@ -59,20 +59,21 @@ public class BalanceTransactionService {
     }
 
     @Transactional
-    public BalanceTransaction replenishment(Authentication authentication, Long userId, String amount) {
+    public BalanceTransaction replenishment(Authentication authentication, Long userId, String amount, String cardNumber) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         user.setBalance(user.getBalance().add(new BigDecimal(amount)));
         BalanceTransaction transaction = new BalanceTransaction();
         transaction.setUser(user);
         transaction.setAmount(new BigDecimal(amount));
         transaction.setType("Пополнение");
+        transaction.setCardNumber(cardNumber);
         balanceTransactionRepository.save(transaction);
         userRepository.save(user);
         return transaction;
     }
 
     @Transactional
-    public BalanceTransaction withdraw(Long userId, BigDecimal amount) {
+    public BalanceTransaction withdraw(Long userId, BigDecimal amount, String cardNumber) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         if (user.getBalance().compareTo(amount) < 0) {
             throw new RuntimeException("Недостаточно средств");
@@ -82,13 +83,14 @@ public class BalanceTransactionService {
         transaction.setUser(user);
         transaction.setAmount(amount);
         transaction.setType("Списание");
+        transaction.setCardNumber(cardNumber);
         balanceTransactionRepository.save(transaction);
         userRepository.save(user);
         return transaction;
     }
 
     @Transactional
-    public BalanceTransaction payment(Long userId, Long orderId, BigDecimal amount) {
+    public BalanceTransaction payment(Long userId, Long orderId, BigDecimal amount, String cardNumber) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Заказ не найден"));
         if (user.getBalance().compareTo(amount) < 0) {
@@ -100,6 +102,7 @@ public class BalanceTransactionService {
         transaction.setAmount(amount);
         transaction.setType("Оплата заказа");
         transaction.setOrder(order);
+        transaction.setCardNumber(cardNumber);
         balanceTransactionRepository.save(transaction);
         userRepository.save(user);
         return transaction;

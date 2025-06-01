@@ -7,6 +7,9 @@ import com.project.safedeal.repository.AdRepository;
 import com.project.safedeal.repository.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.JpaSort;
 import org.springframework.http.HttpStatus;
@@ -38,26 +41,28 @@ public class OrderService {
         order.setClient(user);
         order.setPerformer(performer);
         order.setAd(ad);
-        order.setStatus("ACTIVE");
+        order.setStatus("Активно");
         ad.setCreatedAt(LocalDateTime.now());
         return orderRepository.save(order);
     }
 
-    public List<Order> getUserOrders(Authentication authentication, String sortBy, String order, String title) {
+    public Page<Order> getUserOrders(Authentication authentication, String sortBy, String order, String title, int page, int size) {
         User user = userService.getUserFromAuthentication(authentication);
         Sort sort = buildSort(sortBy, order);
+        Pageable pageable = PageRequest.of(page, size, sort);
         if (title != null && !title.trim().isEmpty()) {
-            return orderRepository.findByClientAndAdTitleContainingIgnoreCase(user, title, sort);
+            return orderRepository.findByClientAndAdTitleContainingIgnoreCase(user, title, pageable);
         }
-        return orderRepository.findByClient(user, sort);
+        return orderRepository.findByClient(user, pageable);
     }
 
-    public List<Order> getAllOrders(Authentication authentication, String sortBy, String order, String title) {
+    public Page<Order> getAllOrders(Authentication authentication, String sortBy, String order, String title, int page, int size) {
         Sort sort = buildSort(sortBy, order);
+        Pageable pageable = PageRequest.of(page, size, sort);
         if (title != null && !title.trim().isEmpty()) {
-            return orderRepository.findByAdTitleContainingIgnoreCase(title, sort);
+            return orderRepository.findByAdTitleContainingIgnoreCase(title, pageable);
         }
-        return orderRepository.findAll(sort);
+        return orderRepository.findAll(pageable);
     }
 
     private Sort buildSort(String sortBy, String order) {

@@ -9,6 +9,9 @@ import com.project.safedeal.repository.OrderRepository;
 import com.project.safedeal.repository.PhotoRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -32,23 +35,26 @@ public class AdService {
     private final OrderRepository orderRepository;
     private final PhotoRepository photoRepository;
 
-    public List<Ad> getAllAds(String sortBy, String order, String title, String category) {
+    public Page<Ad> getAllAds(String sortBy, String order, String title, String category, int page, int size) {
         Sort sort = buildSort(sortBy, order);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
         if (title != null && !title.trim().isEmpty()) {
-            return adRepository.findByTitleContainingIgnoreCase(title, sort);
+            return adRepository.findByTitleContainingIgnoreCase(title, pageable);
         } else if (category != null && !category.trim().isEmpty()) {
-            return adRepository.findByCategoryContainingIgnoreCase(category, sort);
+            return adRepository.findByCategoryContainingIgnoreCase(category, pageable);
         }
-        return adRepository.findAll(sort);
+        return adRepository.findAll(pageable);
     }
 
-    public List<Ad> getUserAds(Authentication authentication, String sortBy, String order, String title) {
+    public Page<Ad> getUserAds(Authentication authentication, String sortBy, String order, String title, int page, int size) {
         User user = userService.getUserFromAuthentication(authentication);
         Sort sort = buildSort(sortBy, order);
+        Pageable pageable = PageRequest.of(page, size, sort);
         if (title != null && !title.trim().isEmpty()) {
-            return adRepository.findByUserAndTitleContainingIgnoreCase(user, title, sort);
+            return adRepository.findByUserAndTitleContainingIgnoreCase(user, title,pageable);
         }
-        return adRepository.findByUser(user, sort);
+        return adRepository.findByUser(user, pageable);
     }
 
     public Ad getAdById(Long id) {

@@ -3,6 +3,7 @@ package com.project.safedeal.controller;
 import com.project.safedeal.model.Ad;
 import com.project.safedeal.service.AdService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -21,21 +22,25 @@ public class AdController {
     private final AdService adService;
 
     @GetMapping("/all")
-    public ResponseEntity<List<Ad>> getAllAds(
+    public ResponseEntity<Page<Ad>> getAllAds(
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam(required = false) String title,
-            @RequestParam(required = false) String category) {
-        return ResponseEntity.ok(adService.getAllAds(sortBy, order, title, category));
+            @RequestParam(required = false) String category,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(adService.getAllAds(sortBy, order, title, category, page, size));
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Ad>> getMyAds(
+    public ResponseEntity<Page<Ad>> getMyAds(
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
-            @RequestParam(required = false) String title) {
-        return ResponseEntity.ok(adService.getUserAds(authentication, sortBy, order, title));
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(adService.getUserAds(authentication, sortBy, order, title, page, size));
     }
 
     @GetMapping("/{id}")

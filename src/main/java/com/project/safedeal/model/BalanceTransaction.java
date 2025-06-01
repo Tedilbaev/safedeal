@@ -31,4 +31,6 @@ public class BalanceTransaction {
     @ManyToOne
     @JoinColumn(name = "order_id", nullable = true)
     private Order order;
+
+    private String cardNumber;
 }

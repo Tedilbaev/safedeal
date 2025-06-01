@@ -4,6 +4,7 @@ import com.project.safedeal.model.Ad;
 import com.project.safedeal.model.Order;
 import com.project.safedeal.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -37,20 +38,24 @@ public class OrderController {
     }
 
     @GetMapping("/my")
-    public ResponseEntity<List<Order>> getMyOrders(
+    public ResponseEntity<Page<Order>> getMyOrders(
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
-            @RequestParam(required = false) String title) {
-        return ResponseEntity.ok(orderService.getUserOrders(authentication, sortBy, order, title));
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(orderService.getUserOrders(authentication, sortBy, order, title, page, size));
     }
 
     @GetMapping("/all")
-    public ResponseEntity<List<Order>> getAllOrders(
+    public ResponseEntity<Page<Order>> getAllOrders(
             Authentication authentication,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
-            @RequestParam(required = false) String title) {
-        return ResponseEntity.ok(orderService.getAllOrders(authentication, sortBy, order, title));
+            @RequestParam(required = false) String title,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ResponseEntity.ok(orderService.getAllOrders(authentication, sortBy, order, title, page, size));
     }
 }
