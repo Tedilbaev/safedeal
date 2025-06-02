@@ -73,15 +73,15 @@ public class BalanceTransactionService {
     }
 
     @Transactional
-    public BalanceTransaction withdraw(Long userId, BigDecimal amount, String cardNumber) {
+    public BalanceTransaction withdraw(Long userId, String amount, String cardNumber) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        if (user.getBalance().compareTo(amount) < 0) {
+        if (user.getBalance().compareTo(new BigDecimal(amount)) < 0) {
             throw new RuntimeException("Недостаточно средств");
         }
-        user.setBalance(user.getBalance().subtract(amount));
+        user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
         BalanceTransaction transaction = new BalanceTransaction();
         transaction.setUser(user);
-        transaction.setAmount(amount);
+        transaction.setAmount(new BigDecimal(amount));
         transaction.setType("Списание");
         transaction.setCardNumber(cardNumber);
         balanceTransactionRepository.save(transaction);
@@ -90,32 +90,31 @@ public class BalanceTransactionService {
     }
 
     @Transactional
-    public BalanceTransaction payment(Long userId, Long orderId, BigDecimal amount, String cardNumber) {
+    public BalanceTransaction payment(Long userId, String orderId, String amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Заказ не найден"));
-        if (user.getBalance().compareTo(amount) < 0) {
+        Order order = orderRepository.findById(Long.parseLong(orderId)).orElseThrow(() -> new RuntimeException("Заказ не найден"));
+        if (user.getBalance().compareTo(new BigDecimal(amount)) < 0) {
             throw new RuntimeException("Недостаточно средств");
         }
-        user.setBalance(user.getBalance().subtract(amount));
+        user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
         BalanceTransaction transaction = new BalanceTransaction();
         transaction.setUser(user);
-        transaction.setAmount(amount);
+        transaction.setAmount(new BigDecimal(amount));
         transaction.setType("Оплата заказа");
         transaction.setOrder(order);
-        transaction.setCardNumber(cardNumber);
         balanceTransactionRepository.save(transaction);
         userRepository.save(user);
         return transaction;
     }
 
     @Transactional
-    public BalanceTransaction deposit(Long userId, Long orderId, BigDecimal amount) {
+    public BalanceTransaction deposit(Long userId, String orderId, String amount) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
-        Order order = orderRepository.findById(orderId).orElseThrow(() -> new RuntimeException("Заказ не найден"));
-        user.setBalance(user.getBalance().add(amount));
+        Order order = orderRepository.findById(Long.parseLong(orderId)).orElseThrow(() -> new RuntimeException("Заказ не найден"));
+        user.setBalance(user.getBalance().add(new BigDecimal(amount)));
         BalanceTransaction transaction = new BalanceTransaction();
         transaction.setUser(user);
-        transaction.setAmount(amount);
+        transaction.setAmount(new BigDecimal(amount));
         transaction.setType("Зачисление за заказ");
         transaction.setOrder(order);
         balanceTransactionRepository.save(transaction);

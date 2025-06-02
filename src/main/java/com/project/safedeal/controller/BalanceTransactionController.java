@@ -43,7 +43,7 @@ public class BalanceTransactionController {
     @PostMapping("/withdraw")
     public ResponseEntity<BalanceTransaction> withdrawBalance(
             @RequestParam("userId") Long userId,
-            @RequestParam("amount") BigDecimal amount,
+            @RequestParam("amount") String amount,
             @RequestParam("cardNumber") String cardNumber) {
         BalanceTransaction transaction = balanceTransactionService.withdraw(userId, amount, cardNumber);
         return ResponseEntity.ok(transaction);
@@ -53,10 +53,10 @@ public class BalanceTransactionController {
     @PostMapping("/payment")
     public ResponseEntity<BalanceTransaction> makePayment(
             @RequestParam Long userId,
-            @RequestParam Long orderId,
-            @RequestParam BigDecimal amount,
-            @RequestParam("cardNumber") String cardNumber) {
-        BalanceTransaction transaction = balanceTransactionService.payment(userId, orderId, amount, cardNumber);
+            @RequestParam String orderId,
+            @RequestParam String amount
+            ) {
+        BalanceTransaction transaction = balanceTransactionService.payment(userId, orderId, amount);
         return ResponseEntity.ok(transaction);
     }
 
@@ -64,8 +64,8 @@ public class BalanceTransactionController {
     @PostMapping("/deposit")
     public ResponseEntity<BalanceTransaction> depositForOrder(
             @RequestParam Long userId,
-            @RequestParam Long orderId,
-            @RequestParam BigDecimal amount) {
+            @RequestParam String orderId,
+            @RequestParam String amount) {
         BalanceTransaction transaction = balanceTransactionService.deposit(userId, orderId, amount);
         return ResponseEntity.ok(transaction);
     }
