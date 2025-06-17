@@ -77,16 +77,16 @@ public class BalanceTransactionService {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("Пользователь не найден"));
         if (user.getBalance().compareTo(new BigDecimal(amount)) < 0) {
             throw new RuntimeException("Недостаточно средств");
+        } else {
+            user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
+            BalanceTransaction transaction = new BalanceTransaction();
+            transaction.setUser(user);
+            transaction.setAmount(new BigDecimal(amount));
+            transaction.setType("Списание");
+            transaction.setCardNumber(cardNumber);
+            balanceTransactionRepository.save(transaction);
+            return transaction;
         }
-        user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
-        BalanceTransaction transaction = new BalanceTransaction();
-        transaction.setUser(user);
-        transaction.setAmount(new BigDecimal(amount));
-        transaction.setType("Списание");
-        transaction.setCardNumber(cardNumber);
-        balanceTransactionRepository.save(transaction);
-        userRepository.save(user);
-        return transaction;
     }
 
     @Transactional
@@ -95,16 +95,17 @@ public class BalanceTransactionService {
         Order order = orderRepository.findById(Long.parseLong(orderId)).orElseThrow(() -> new RuntimeException("Заказ не найден"));
         if (user.getBalance().compareTo(new BigDecimal(amount)) < 0) {
             throw new RuntimeException("Недостаточно средств");
+        } else {
+            user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
+            BalanceTransaction transaction = new BalanceTransaction();
+            transaction.setUser(user);
+            transaction.setAmount(new BigDecimal(amount));
+            transaction.setType("Оплата заказа");
+            transaction.setOrder(order);
+            balanceTransactionRepository.save(transaction);
+            userRepository.save(user);
+            return transaction;
         }
-        user.setBalance(user.getBalance().subtract(new BigDecimal(amount)));
-        BalanceTransaction transaction = new BalanceTransaction();
-        transaction.setUser(user);
-        transaction.setAmount(new BigDecimal(amount));
-        transaction.setType("Оплата заказа");
-        transaction.setOrder(order);
-        balanceTransactionRepository.save(transaction);
-        userRepository.save(user);
-        return transaction;
     }
 
     @Transactional
