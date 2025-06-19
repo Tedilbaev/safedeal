@@ -1,10 +1,8 @@
 package com.project.safedeal.service;
 
-import com.project.safedeal.model.Ad;
-import com.project.safedeal.model.Photo;
-import com.project.safedeal.model.User;
-import com.project.safedeal.model.Order;
+import com.project.safedeal.model.*;
 import com.project.safedeal.repository.AdRepository;
+import com.project.safedeal.repository.CommentRepository;
 import com.project.safedeal.repository.OrderRepository;
 import com.project.safedeal.repository.PhotoRepository;
 import jakarta.transaction.Transactional;
@@ -34,6 +32,7 @@ public class AdService {
     private final UserService userService;
     private final OrderRepository orderRepository;
     private final PhotoRepository photoRepository;
+    private final CommentRepository commentRepository;
 
     public Page<Ad> getAllAds(String sortBy, String order, String title, String category, int page, int size) {
         Sort sort = buildSort(sortBy, order);
@@ -87,6 +86,8 @@ public class AdService {
         orderRepository.deleteAll(orders);
         List<Photo> photos = photoRepository.findByAdId(id);
         photoRepository.deleteAll(photos);
+        List<Comment> comments = commentRepository.findByAdId(id);
+        commentRepository.deleteAll(comments);
 
         adRepository.delete(ad);
     }

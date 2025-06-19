@@ -4,24 +4,16 @@ import com.project.safedeal.model.Ad;
 import com.project.safedeal.model.Comment;
 import com.project.safedeal.model.User;
 import com.project.safedeal.repository.CommentRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,10 +23,10 @@ public class CommentService {
     private final UserService userService;
     private final AdService adService;
 
-    public List<Comment> getAllCommentByAd(String sortBy, String order, Long adId) {
+    public List<Comment> getAllCommentByAd(Authentication authentication, String sortBy, String order, Long adId) {
         Ad ad = adService.getAdById(adId);
         Sort sort = buildSort(sortBy, order);
-        return commentRepository.findByAdContainingIgnoreCase(ad, sort);
+        return commentRepository.findByAd(ad, sort);
     }
 
     private Sort buildSort(String sortBy, String order) {

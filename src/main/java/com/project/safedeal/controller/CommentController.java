@@ -3,11 +3,9 @@ package com.project.safedeal.controller;
 import com.project.safedeal.model.Comment;
 import com.project.safedeal.service.CommentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 
@@ -23,10 +21,11 @@ public class CommentController {
 
     @GetMapping("/all")
     public ResponseEntity<List<Comment>> getAllComments(
+            Authentication authentication,
             @RequestParam(required = false, defaultValue = "createdAt") String sortBy,
             @RequestParam(required = false, defaultValue = "desc") String order,
             @RequestParam("adId") Long adId) {
-        return ResponseEntity.ok(commentService.getAllCommentByAd(sortBy, order, adId));
+        return ResponseEntity.ok(commentService.getAllCommentByAd(authentication, sortBy, order, adId));
     }
 
     @DeleteMapping("/delete/{id}")
